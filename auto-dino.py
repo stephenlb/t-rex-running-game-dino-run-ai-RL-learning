@@ -6,8 +6,6 @@
 GAME_CHANNEL='t-rex-dino-game-state'
 import pubnub
 
-s
-
 import numpy as np
 import gymnasium as gym
 

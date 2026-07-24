@@ -81,12 +81,21 @@
 
         setInterval(()=>{
             let obstacles = [0, 1].map( i => [
-                decimals(this.horizon.obstacles[i]?.xPos || 1000 / 700.0),
-                decimals(this.horizon.obstacles[i]?.yPos || 1000 / 100.0),
+                decimals((this.horizon.obstacles[i]?.xPos || 1000) / 700.0),
+                decimals((this.horizon.obstacles[i]?.yPos || 1000) / 100.0),
             ] ).slice(0, 2);
             
             if (this.crashed) this.timeStep = 0;
             else              this.timeStep++;
+
+            let xPos = obstacles[0][0];
+            let yPos = obstacles[0][1];
+            if (yPos <= 0.6 && this.tRex.jumpVelocity == 0) {
+                this.tRex.setDuck(true);
+            }
+            else if (xPos < 0.2 && xPos > 0.05) {
+                this.tRex.startJump(this.currentSpeed);
+            }
 
             this.pubnub.publish({
                 channel: this.game_channel,
@@ -99,7 +108,7 @@
                     jump_velocity: decimals(this.tRex.jumpVelocity / 10.0),
                 },
             });
-        }, 50);
+        }, 30);
     }
     window['Runner'] = Runner;
 
@@ -413,7 +422,7 @@
             // Draw t-rex
             this.tRex = new Trex(this.canvas, this.spriteDef.TREX);
 
-            setInterval( () => { this.tRex.startJump(this.currentSpeed); }, 230 );
+            //setInterval( () => { this.tRex.startJump(this.currentSpeed); }, 230 );
 
             this.outerContainerEl.appendChild(this.containerEl);
 
