@@ -600,6 +600,7 @@
                     this.horizon.update(0, this.currentSpeed, hasObstacles);
                 } else {
                     deltaTime = !this.activated ? 0 : deltaTime;
+
                     this.horizon.update(deltaTime, this.currentSpeed, hasObstacles,
                         this.inverted);
                 }

@@ -1,6 +1,7 @@
 import requests
 import threading
 from queue import Queue
+import time
 
 ## Transmit Player Movements
 def publish(channel, message):
@@ -9,7 +10,6 @@ def publish(channel, message):
     subkey = 'demo'
     payload = json.dumps(message)
     uri = f'/publish/{pubkey}/{subkey}/0/{channel}/0/{payload}'
-
     response = requests.get(uri)
     return response.json()[0]
 
@@ -27,6 +27,8 @@ def subscribe(channel, inbox):
 
         for message in messages:
             inbox.put(message)
+        
+        time.sleep(0.01)
 
 def publisher(inbox, outbox):
     while True:
@@ -50,4 +52,3 @@ if __name__ == '__main__':
 
     subscription.join()
     publishing.join()
-
