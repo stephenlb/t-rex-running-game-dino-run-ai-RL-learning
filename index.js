@@ -600,6 +600,14 @@
                     this.horizon.update(0, this.currentSpeed, hasObstacles);
                 } else {
                     deltaTime = !this.activated ? 0 : deltaTime;
+                    /*
+                    let previousFillStyle = this.horizon.canvasCtx.fillStyle;
+                    this.horizon.canvasCtx.fillStyle = "red";
+                    this.horizon.canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+                    this.horizon.canvasCtx.fillStyle = previousFillStyle;
+                    */
+                    this.horizon.canvasCtx.fillStyle = "red";
+                    this.horizon.canvasCtx.fillRect(0, 0, 900, 500);
 
                     this.horizon.update(deltaTime, this.currentSpeed, hasObstacles,
                         this.inverted);
