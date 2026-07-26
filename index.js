@@ -108,7 +108,7 @@
                     jump_velocity: decimals(this.tRex.jumpVelocity / 10.0),
                 },
             });
-        }, 30);
+        }, 20);
     }
     window['Runner'] = Runner;
 

@@ -39,11 +39,14 @@ if __name__ == '__main__':
 
     ## Subscription Inbox
     inbox = Queue()
-    subscription = threading.Thread(target=subscribe, args=(inbox,))
+    subscription = threading.Thread(target=subscribe, args=(game_state_channel, inbox,))
 
     ## Publish Game Movement
     outbox = Queue()
     publishing = threading.Thread(target=publisher, args=(inbox, outbox,))
+
+    subscription.start()
+    publishing.start()
 
     subscription.join()
     publishing.join()
