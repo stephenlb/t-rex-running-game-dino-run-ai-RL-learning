@@ -88,15 +88,6 @@
             if (this.crashed) this.timeStep = 0;
             else              this.timeStep++;
 
-            let xPos = obstacles[0][0];
-            let yPos = obstacles[0][1];
-            if (yPos <= 0.6 && this.tRex.jumpVelocity == 0) {
-                this.tRex.setDuck(true);
-            }
-            else if (xPos < 0.2 && xPos > 0.05) {
-                this.tRex.startJump(this.currentSpeed);
-            }
-
             this.pubnub.publish({
                 channel: this.game_channel,
                 message: {
@@ -105,6 +96,7 @@
                     obstacles: obstacles,
                     crashed: this.crashed ? 1.0 : 0.0,
                     jumping: this.tRex.jumping ? 1.0 : 0.0,
+                    //ducking: this.tRex.ducking ? 1.0 : 0.0,
                     jump_velocity: decimals(this.tRex.jumpVelocity / 10.0),
                 },
             });
@@ -606,7 +598,7 @@
                     this.horizon.canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
                     this.horizon.canvasCtx.fillStyle = previousFillStyle;
                     */
-                    this.horizon.canvasCtx.fillStyle = "red";
+                    this.horizon.canvasCtx.fillStyle = "white";
                     this.horizon.canvasCtx.fillRect(0, 0, 900, 500);
 
                     this.horizon.update(deltaTime, this.currentSpeed, hasObstacles,
@@ -619,6 +611,21 @@
 
                 if (!collision) {
                     this.distanceRan += this.currentSpeed * deltaTime / this.msPerFrame;
+
+                    ///////////////// TODO HERE
+                    let obstacles = [0, 1].map( i => [
+                        (this.horizon.obstacles[i]?.xPos || 1000) / 700.0,
+                        (this.horizon.obstacles[i]?.yPos || 1000) / 100.0,
+                    ] ).slice(0, 2);
+                    let xPos = obstacles[0][0];
+                    let yPos = obstacles[0][1];
+                    if (yPos <= 0.6 && this.tRex.jumpVelocity == 0) {
+                        this.tRex.setDuck(this.tRex.ducking);
+                    }
+                    else if (xPos < 0.2 && xPos > 0.05) {
+                        this.tRex.startJump(this.currentSpeed);
+                    }
+
 
                     if (this.currentSpeed < this.config.MAX_SPEED) {
                         this.currentSpeed += this.config.ACCELERATION;
@@ -1624,7 +1631,7 @@
         GRAVITY: 0.6,
         HEIGHT: 47,
         HEIGHT_DUCK: 25,
-        INIITAL_JUMP_VELOCITY: -10,
+        INIITAL_JUMP_VELOCITY: -11,
         INTRO_DURATION: 1500,
         MAX_JUMP_HEIGHT: 30,
         MIN_JUMP_HEIGHT: 30,
