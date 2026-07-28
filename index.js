@@ -64,6 +64,10 @@
         this.images = {};
         this.imagesLoaded = 0;
 
+        // Horizon background image.
+        this.bgImage = new Image();
+        this.bgImage.src = 'assets/sky.jpg';
+
         if (this.isDisabled()) {
             this.setupDisabledRunner();
         } else {
@@ -96,11 +100,11 @@
                     obstacles: obstacles,
                     crashed: this.crashed ? 1.0 : 0.0,
                     jumping: this.tRex.jumping ? 1.0 : 0.0,
-                    //ducking: this.tRex.ducking ? 1.0 : 0.0,
+                    ducking: this.tRex.ducking ? 1.0 : 0.0,
                     jump_velocity: decimals(this.tRex.jumpVelocity / 10.0),
                 },
             });
-        }, 20);
+        }, 50);
     }
     window['Runner'] = Runner;
 
@@ -598,8 +602,13 @@
                     this.horizon.canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
                     this.horizon.canvasCtx.fillStyle = previousFillStyle;
                     */
-                    this.horizon.canvasCtx.fillStyle = "white";
-                    this.horizon.canvasCtx.fillRect(0, 0, 900, 500);
+                    if (this.bgImage.complete && this.bgImage.naturalWidth) {
+                        this.horizon.canvasCtx.drawImage(this.bgImage, 0, 0,
+                            this.dimensions.WIDTH, this.dimensions.HEIGHT);
+                    } else {
+                        this.horizon.canvasCtx.fillStyle = "white";
+                        this.horizon.canvasCtx.fillRect(0, 0, 900, 500);
+                    }
 
                     this.horizon.update(deltaTime, this.currentSpeed, hasObstacles,
                         this.inverted);
@@ -613,10 +622,10 @@
                     this.distanceRan += this.currentSpeed * deltaTime / this.msPerFrame;
 
                     ///////////////// TODO HERE
-                    let obstacles = [0, 1].map( i => [
+                    let obstacles = [0].map( i => [
                         (this.horizon.obstacles[i]?.xPos || 1000) / 700.0,
                         (this.horizon.obstacles[i]?.yPos || 1000) / 100.0,
-                    ] ).slice(0, 2);
+                    ] )[0];
                     let xPos = obstacles[0][0];
                     let yPos = obstacles[0][1];
                     if (yPos <= 0.6 && this.tRex.jumpVelocity == 0) {

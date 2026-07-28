@@ -17,7 +17,7 @@ def publish(channel, message):
 def subscribe(channel, inbox):
     while True:
         origin = 'h2.pubnubapi.com'
-        timetoken = '1000'
+        timetoken = '100'
         subkey = 'demo'
         uri=f"https://{origin}/subscribe/{subkey}/{channel}/0/{timetoken}";
         response = requests.get(uri)
