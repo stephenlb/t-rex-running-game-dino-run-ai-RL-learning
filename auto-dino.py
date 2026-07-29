@@ -15,7 +15,8 @@ GAME_MOVE_CHANNEL = 't-rex-dino-game-movement'
 
 def extract_features(frame: dict) -> torch.Tensor:
     return torch.Tensor([
-        frame['speed'], frame['obstacles'][0][0], #x1
+        frame['speed'],
+        frame['obstacles'][0][0], #x1
         frame['obstacles'][0][1], #y1
         frame['obstacles'][1][0], #x2
         frame['obstacles'][1][1], #y2
