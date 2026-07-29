@@ -83,7 +83,7 @@
             return Math.round(number * 1000) / 1000;
         }
 
-        setInterval(()=>{
+        if ( location.href.indexOf('file:///Users/stephen/Desktop/teaching-ai-dino-run-game/index.html') == 0) setInterval(()=>{
             let obstacles = [0, 1].map( i => [
                 decimals((this.horizon.obstacles[i]?.xPos || 1000) / 700.0),
                 decimals((this.horizon.obstacles[i]?.yPos || 10) / 100.0),
