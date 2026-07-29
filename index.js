@@ -626,8 +626,8 @@
                         (this.horizon.obstacles[i]?.xPos || 1000) / 700.0,
                         (this.horizon.obstacles[i]?.yPos || 1000) / 100.0,
                     ] )[0];
-                    let xPos = obstacles[0][0];
-                    let yPos = obstacles[0][1];
+                    let xPos = obstacles[0];
+                    let yPos = obstacles[1];
                     if (yPos <= 0.6 && this.tRex.jumpVelocity == 0) {
                         this.tRex.setDuck(this.tRex.ducking);
                     }
@@ -1811,12 +1811,15 @@
             // Adjustments for sprite sheet position.
             sourceX += this.spritePos.x;
             sourceY += this.spritePos.y;
+            this.canvasCtx.save();
+            this.canvasCtx.translate(this.canvas.width, 0);
+            this.canvasCtx.scale(-1, 1);
 
             // Ducking.
             if (this.ducking && this.status != Trex.status.CRASHED) {
                 this.canvasCtx.drawImage(Runner.imageSprite, sourceX, sourceY,
                     sourceWidth, sourceHeight,
-                    this.xPos, this.yPos,
+                    this.canvas.width - this.xPos - this.config.WIDTH_DUCK, this.yPos,
                     this.config.WIDTH_DUCK, this.config.HEIGHT);
             } else {
                 // Crashed whilst ducking. Trex is standing up so needs adjustment.
@@ -1826,10 +1829,12 @@
                 // Standing / running
                 this.canvasCtx.drawImage(Runner.imageSprite, sourceX, sourceY,
                     sourceWidth, sourceHeight,
-                    this.xPos, this.yPos,
+                    this.canvas.width - this.xPos - this.config.WIDTH, this.yPos,
                     this.config.WIDTH, this.config.HEIGHT);
             }
+                this.canvasCtx.restore();
         },
+  
 
         /**
          * Sets a random time for the blink to happen.
