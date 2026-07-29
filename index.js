@@ -86,7 +86,7 @@
         setInterval(()=>{
             let obstacles = [0, 1].map( i => [
                 decimals((this.horizon.obstacles[i]?.xPos || 1000) / 700.0),
-                decimals((this.horizon.obstacles[i]?.yPos || 1000) / 100.0),
+                decimals((this.horizon.obstacles[i]?.yPos || 100) / 100.0),
             ] ).slice(0, 2);
             
             if (this.crashed) this.timeStep = 0;
@@ -634,7 +634,6 @@
                     else if (xPos < 0.2 && xPos > 0.05) {
                         this.tRex.startJump(this.currentSpeed);
                     }
-
 
                     if (this.currentSpeed < this.config.MAX_SPEED) {
                         this.currentSpeed += this.config.ACCELERATION;
