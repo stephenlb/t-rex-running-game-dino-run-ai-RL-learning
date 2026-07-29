@@ -100,7 +100,7 @@
                     obstacles: obstacles,
                     crashed: this.crashed ? 1.0 : 0.0,
                     jumping: this.tRex.jumping ? 1.0 : 0.0,
-                    ducking: this.tRex.ducking ? 1.0 : 0.0,
+                    //ducking: this.tRex.ducking ? 1.0 : 0.0,
                     jump_velocity: decimals(this.tRex.jumpVelocity / 10.0),
                 },
             });
@@ -1641,7 +1641,7 @@ Runner.updateCanvasScaling = function (canvas, opt_width, opt_height) {
         GRAVITY: 0.6,
         HEIGHT: 47,
         HEIGHT_DUCK: 25,
-        INIITAL_JUMP_VELOCITY: -11,
+        INIITAL_JUMP_VELOCITY: -15,
         INTRO_DURATION: 1500,
         MAX_JUMP_HEIGHT: 30,
         MIN_JUMP_HEIGHT: 30,

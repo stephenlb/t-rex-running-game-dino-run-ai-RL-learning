@@ -2,6 +2,7 @@ import requests
 import threading
 from queue import Queue
 import time
+import json
 
 ## Transmit Player Movements
 def publish(channel, message):
@@ -15,9 +16,9 @@ def publish(channel, message):
 
 ## Receive the game state
 def subscribe(channel, inbox):
+    timetoken = '0'
     while True:
         origin = 'h2.pubnubapi.com'
-        timetoken = '100'
         subkey = 'demo'
         uri=f"https://{origin}/subscribe/{subkey}/{channel}/0/{timetoken}";
         response = requests.get(uri)

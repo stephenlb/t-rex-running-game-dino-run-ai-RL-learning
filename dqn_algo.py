@@ -20,9 +20,13 @@ class Model(nn.Module):
     ## DQN
     def compute_loss(self,current:Tensor,reward:Tensor,action :IntTensor,future:Tensor):
         #start by seeing what the model guesses
+        #action = action.reshape(-1, 1)
+        out = self.forward(current)
+        print('out',out.shape)
+        return
         guess = (
             self.forward(current)
-            .gather(-1, action.reshape(-1, 1))
+            .gather(1, action)
             .squeeze(-1)
         )
 
