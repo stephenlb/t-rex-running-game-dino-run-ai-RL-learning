@@ -27,25 +27,21 @@ def extract_features(frame: dict) -> torch.Tensor:
 
 model = dqn_algo.Model()
 def environment(inbox, outbox):
-    future = None
+    future = extract_features(inbox.get())
     while True:
-
-        ## Calculate Future and Current State Features
-        if future == None: current = extract_features(inbox.get())
-        else:              current = future
+        current = future
         future = extract_features(inbox.get())
-        print(future.shape)
-        #print(future)
+        print(future)
 
         ## Calculate Reward
         crashed = future[0][5]
         if crashed: reward = -10.0
         else:       reward = 0.3
-        reward = torch.Tensor([[reward]])
+        reward = torch.Tensor([reward])
 
         ## Action
-        jump = current[0][7]
-        action = torch.IntTensor([int(jump)]) ## [jump]
+        jump = current[0][6]
+        action = torch.IntTensor([[int(jump)]]) ## [jump]
         #out = model(future)
         loss = model.compute_loss(
             current,

@@ -23,7 +23,7 @@ class Model(nn.Module):
         #action = action.reshape(-1, 1)
         out = self.forward(current)
         print('out',out.shape)
-        return
+        print('action',action.shape)
         guess = (
             self.forward(current)
             .gather(1, action)
