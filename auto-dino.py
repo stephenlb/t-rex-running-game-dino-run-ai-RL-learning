@@ -29,13 +29,28 @@ model = dqn_algo.Model()
 def environment(inbox, outbox):
     future = None
     while True:
-        if future == None:
-            current = extract_features(inbox.get())
-        else:
-            current = future
-        future  = extract_features(inbox.get())
+
+        if future == None: current = extract_features(inbox.get())
+        else:              current = future
+
+        future = extract_features(inbox.get())
+
+        ## Calculate Reward
+        crashed = future[5]
+        if crashed: reward = -10.0
+        else:       reward = 0.1
+
+            
         print(future)
-        out = model(future)
+        #out = model(future)
+        #loss = model.compute_loss(
+        #    current,
+        #    reward[],
+        #    action[0,1], 
+        #    future,
+        #)
+        ##loss.backward()
+
         print(out)
 
 ## Subscription Inbox

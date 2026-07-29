@@ -4,7 +4,7 @@ from torch import Tensor, IntTensor
 import torch.nn.functional as F
 
 NUM_INPUTS = 8 #idk what this should be
-NUM_MOVES = 3
+NUM_MOVES = 2
 DECAY = 0.8 #play with this
 
 class Model(nn.Module):
