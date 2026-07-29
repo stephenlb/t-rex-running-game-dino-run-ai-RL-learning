@@ -37,7 +37,7 @@ def environment(inbox, outbox):
         crashed = future[0][5]
         if crashed: reward = -10.0
         else:       reward = 0.3
-        reward = torch.Tensor([reward])
+        reward = torch.Tensor([[reward]])
 
         ## Action
         jump = current[0][6]
