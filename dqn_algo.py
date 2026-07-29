@@ -27,15 +27,14 @@ class Model(nn.Module):
         guess = (
             self.forward(current)
             .gather(1, action)
-            .squeeze(-1)
         )
 
         #look one move to the future, see what it thinks then
         with torch.no_grad():
-            future_guess = self.forward(future).max(-1).values
+            future_guess = self.forward(future).max(-1, keepdim=True).values
 
         #we can now do a better job guessing
-        better_guess = reward + DECAY*future_guess
+        better_guess = reward + DECAY * future_guess
 
         #well we can improve our guess now
         error = guess - better_guess
