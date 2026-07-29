@@ -6,13 +6,13 @@ import json
 
 ## Transmit Player Movements
 def publish(channel, message):
-    origin = 'h2.pubnubapi.com'
+    origin = 'https://h2.pubnubapi.com'
     pubkey = 'demo'
     subkey = 'demo'
     payload = json.dumps(message)
-    uri = f'/publish/{pubkey}/{subkey}/0/{channel}/0/{payload}'
+    uri = f'{origin}/publish/{pubkey}/{subkey}/0/{channel}/0/{payload}'
     response = requests.get(uri)
-    return response.json()[0]
+    return response.json()
 
 ## Receive the game state
 def subscribe(channel, inbox):
@@ -47,6 +47,9 @@ if __name__ == '__main__':
     ## Publish Game Movement
     outbox = Queue()
     publishing = threading.Thread(target=publisher, args=(inbox, outbox,))
+
+    ## Test Publish
+    print(publish(game_move_channel, {'jump':0}))
 
     subscription.start()
     publishing.start()

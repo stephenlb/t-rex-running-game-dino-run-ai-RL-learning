@@ -1641,7 +1641,7 @@ Runner.updateCanvasScaling = function (canvas, opt_width, opt_height) {
         GRAVITY: 0.6,
         HEIGHT: 47,
         HEIGHT_DUCK: 25,
-        INIITAL_JUMP_VELOCITY: -15,
+        INITIAL_JUMP_VELOCITY: -15,
         INTRO_DURATION: 1500,
         MAX_JUMP_HEIGHT: 30,
         MIN_JUMP_HEIGHT: 30,
@@ -1739,7 +1739,7 @@ Runner.updateCanvasScaling = function (canvas, opt_width, opt_height) {
          * The approriate drop velocity is also set.
          */
         setJumpVelocity: function (setting) {
-            this.config.INIITAL_JUMP_VELOCITY = -setting;
+            this.config.INITIAL_JUMP_VELOCITY = -setting;
             this.config.DROP_VELOCITY = -setting / 2;
         },
 
@@ -1871,7 +1871,7 @@ Runner.updateCanvasScaling = function (canvas, opt_width, opt_height) {
             if (!this.jumping) {
                 this.update(0, Trex.status.JUMPING);
                 // Tweak the jump velocity based on the speed.
-                this.jumpVelocity = this.config.INIITAL_JUMP_VELOCITY - (speed / 10);
+                this.jumpVelocity = this.config.INITIAL_JUMP_VELOCITY - (speed / 10);
                 this.jumping = true;
                 this.reachedMinHeight = false;
                 this.speedDrop = false;
