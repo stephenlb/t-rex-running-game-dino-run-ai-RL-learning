@@ -35,6 +35,16 @@
     let input   = null;
     let enabled = true;
 
+    // How far the artwork has scrolled to the left, in drawing-space pixels.
+    // The canvas is treated as a loop of WIDTH pixels: it is painted twice,
+    // once at -scrollX and once at WIDTH - scrollX, so strokes leaving on the
+    // left re-enter on the right.
+    let scrollX = 0;
+
+    // Fraction of the game speed the sky artwork drifts at. Clouds move slowly
+    // relative to the ground, and the drawing sits with them in the sky.
+    const SCROLL_SPEED_RATIO = 0.2;
+
     // Build the pointer capture layer, color picker and occupancy counter.
     function setupDom() {
         input = document.createElement('div');
@@ -97,6 +107,13 @@
             return;
         }
 
+        // The stroke wrapped around the scrolling seam, don't streak a line
+        // all the way back across the canvas.
+        if (Math.abs(coords.x - user.lastCoords.x) > WIDTH / 2) {
+            user.lastCoords = { x: coords.x, y: coords.y };
+            return;
+        }
+
         context.beginPath();
         context.strokeStyle = user.style;
         context.lineWidth = 2;
@@ -117,8 +134,11 @@
             width: document.body.clientWidth,
             height: document.body.clientHeight
         };
+        // Undo the scroll so the stroke lands under the pointer on screen and
+        // then travels left with the rest of the artwork.
+        const x = ((event.clientX - rect.left) / rect.width) * WIDTH + scrollX;
         return {
-            x: Math.floor(((event.clientX - rect.left) / rect.width) * WIDTH),
+            x: Math.floor(((x % WIDTH) + WIDTH) % WIDTH),
             y: Math.floor(((event.clientY - rect.top) / rect.height) * HEIGHT)
         };
     }
@@ -200,9 +220,31 @@
         loadHistory();
     }
 
+    // Advance the scroll offset. Called once per frame by the game with the
+    // same deltaTime and speed the horizon uses, so the artwork keeps pace with
+    // the world moving forward underneath it.
+    function update(deltaTime, speed) {
+        if (!deltaTime || !speed) return;
+        const increment = speed * SCROLL_SPEED_RATIO * (deltaTime / 1000) * 60;
+        scrollX = (scrollX + increment) % WIDTH;
+    }
+
+    // Paint the artwork onto the game canvas twice so it wraps seamlessly as it
+    // slides left. Scaled from drawing space into the game's dimensions.
+    function render(ctx, width, height) {
+        const scale  = width / WIDTH;
+        const offset = scrollX * scale;
+        ctx.drawImage(canvas, -offset, 0, width, height);
+        ctx.drawImage(canvas, width - offset, 0, width, height);
+    }
+
     // The game's update loop blits this onto its canvas, just after the sky and
     // before the horizon, clouds and characters are drawn.
-    window['SharedDrawing'] = { canvas: canvas };
+    window['SharedDrawing'] = {
+        canvas : canvas,
+        update : update,
+        render : render
+    };
 
     document.addEventListener('DOMContentLoaded', setupDrawing);
 })();

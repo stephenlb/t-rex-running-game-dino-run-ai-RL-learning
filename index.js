@@ -611,10 +611,11 @@
                     }
 
                     // Shared multi-user drawing, painted over the sky so it
-                    // stays in the background behind the game characters.
+                    // stays in the background behind the game characters. It
+                    // drifts left with the world, like the clouds.
                     if (window.SharedDrawing) {
-                        this.horizon.canvasCtx.drawImage(
-                            window.SharedDrawing.canvas, 0, 0,
+                        window.SharedDrawing.update(deltaTime, this.currentSpeed);
+                        window.SharedDrawing.render(this.horizon.canvasCtx,
                             this.dimensions.WIDTH, this.dimensions.HEIGHT);
                     }
 
