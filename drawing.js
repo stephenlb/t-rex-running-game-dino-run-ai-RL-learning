@@ -32,18 +32,24 @@
     canvas.width  = WIDTH;
     canvas.height = HEIGHT;
 
+    // Scratch buffer for the scroll shift. Copying a canvas onto itself with an
+    // offset is not reliable, so the shifted copy is staged here first.
+    const scratch    = document.createElement('canvas');
+    const scratchCtx = scratch.getContext('2d');
+    scratch.width    = WIDTH;
+    scratch.height   = HEIGHT;
+
     let input   = null;
     let enabled = true;
 
-    // How far the artwork has scrolled to the left, in drawing-space pixels.
-    // The canvas is treated as a loop of WIDTH pixels: it is painted twice,
-    // once at -scrollX and once at WIDTH - scrollX, so strokes leaving on the
-    // left re-enter on the right.
-    let scrollX = 0;
+    // Sub-pixel scroll debt. The artwork scrolls by physically shifting the
+    // canvas pixels left, which can only happen in whole pixels, so fractional
+    // movement is carried over to the next frame.
+    let scrollDebt = 0;
 
     // Fraction of the game speed the sky artwork drifts at. Clouds move slowly
     // relative to the ground, and the drawing sits with them in the sky.
-    const SCROLL_SPEED_RATIO = 0.2;
+    const SCROLL_SPEED_RATIO = 0.05;
 
     // Build the pointer capture layer, color picker and occupancy counter.
     function setupDom() {
@@ -107,13 +113,6 @@
             return;
         }
 
-        // The stroke wrapped around the scrolling seam, don't streak a line
-        // all the way back across the canvas.
-        if (Math.abs(coords.x - user.lastCoords.x) > WIDTH / 2) {
-            user.lastCoords = { x: coords.x, y: coords.y };
-            return;
-        }
-
         context.beginPath();
         context.strokeStyle = user.style;
         context.lineWidth = 2;
@@ -134,11 +133,10 @@
             width: document.body.clientWidth,
             height: document.body.clientHeight
         };
-        // Undo the scroll so the stroke lands under the pointer on screen and
-        // then travels left with the rest of the artwork.
-        const x = ((event.clientX - rect.left) / rect.width) * WIDTH + scrollX;
+        // The canvas stays aligned with the screen; the artwork inside it is
+        // what moves, so pointer coordinates map straight across.
         return {
-            x: Math.floor(((x % WIDTH) + WIDTH) % WIDTH),
+            x: Math.floor(((event.clientX - rect.left) / rect.width) * WIDTH),
             y: Math.floor(((event.clientY - rect.top) / rect.height) * HEIGHT)
         };
     }
@@ -220,22 +218,40 @@
         loadHistory();
     }
 
-    // Advance the scroll offset. Called once per frame by the game with the
-    // same deltaTime and speed the horizon uses, so the artwork keeps pace with
-    // the world moving forward underneath it.
+    // Advance the artwork. Called once per frame by the game with the same
+    // deltaTime and speed the horizon uses, so the drawing keeps pace with the
+    // world moving forward underneath it. The pixels are physically copied to
+    // the left and the vacated strip on the right is left transparent, so
+    // anything that reaches the left edge is gone for good.
     function update(deltaTime, speed) {
         if (!deltaTime || !speed) return;
-        const increment = speed * SCROLL_SPEED_RATIO * (deltaTime / 1000) * 60;
-        scrollX = (scrollX + increment) % WIDTH;
+
+        scrollDebt += speed * SCROLL_SPEED_RATIO * (deltaTime / 1000) * 60;
+        const shift = Math.floor(scrollDebt);
+        if (shift < 1) return;
+        scrollDebt -= shift;
+
+        if (shift >= WIDTH) {
+            context.clearRect(0, 0, WIDTH, HEIGHT);
+        } else {
+            scratchCtx.clearRect(0, 0, WIDTH, HEIGHT);
+            scratchCtx.drawImage(canvas, -shift, 0);
+            context.clearRect(0, 0, WIDTH, HEIGHT);
+            context.drawImage(scratch, 0, 0);
+        }
+
+        // In-progress strokes must travel with the pixels they already laid
+        // down, otherwise the next segment streaks back to a stale position.
+        Object.keys(users).forEach(function (id) {
+            const last = users[id].lastCoords;
+            if (last) last.x -= shift;
+        });
     }
 
-    // Paint the artwork onto the game canvas twice so it wraps seamlessly as it
-    // slides left. Scaled from drawing space into the game's dimensions.
+    // Paint the artwork onto the game canvas, scaled from drawing space into
+    // the game's dimensions.
     function render(ctx, width, height) {
-        const scale  = width / WIDTH;
-        const offset = scrollX * scale;
-        ctx.drawImage(canvas, -offset, 0, width, height);
-        ctx.drawImage(canvas, width - offset, 0, width, height);
+        ctx.drawImage(canvas, 0, 0, width, height);
     }
 
     // The game's update loop blits this onto its canvas, just after the sky and
