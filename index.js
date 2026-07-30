@@ -610,6 +610,14 @@
                         this.horizon.canvasCtx.fillRect(0, 0, 900, 500);
                     }
 
+                    // Shared multi-user drawing, painted over the sky so it
+                    // stays in the background behind the game characters.
+                    if (window.SharedDrawing) {
+                        this.horizon.canvasCtx.drawImage(
+                            window.SharedDrawing.canvas, 0, 0,
+                            this.dimensions.WIDTH, this.dimensions.HEIGHT);
+                    }
+
                     this.horizon.update(deltaTime, this.currentSpeed, hasObstacles,
                         this.inverted);
                 }

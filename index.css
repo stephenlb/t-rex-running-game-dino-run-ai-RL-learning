@@ -164,3 +164,68 @@ html, body {
   transition: transform 250ms cubic-bezier(0.4, 0, 1, 1) 400ms;
   z-index: 2;
 }
+
+/* Live multi-user drawing overlay */
+
+/* Transparent pointer capture layer. The strokes themselves are composited
+   into the game canvas as a background, see drawing.js. */
+#drawing-input {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  touch-action: none;
+  z-index: 10;
+}
+
+.drawing-disabled #drawing-input {
+  pointer-events: none;
+}
+
+#drawing-colors {
+  display: flex;
+  position: fixed;
+  top: 20px;
+  right: 200px;
+  min-width: 200px;
+  gap: 4px;
+  box-shadow: 1px 1px 20px rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.1);
+  padding: 8px;
+  border-radius: 16px;
+  backdrop-filter: blur(4px);
+  z-index: 11;
+}
+
+#drawing-colors .drawing-color {
+  flex: 1;
+  min-width: 30px;
+  min-height: 30px;
+  border-radius: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  transition: all 150ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+#drawing-colors .drawing-color:active {
+  scale: 1.4;
+}
+
+#drawing-colors .drawing-color.active {
+  border: 2px solid white;
+  box-shadow: 0 0 10px white;
+  transform: scale(1.1);
+}
+
+#drawing-occupancy {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  font-size: 60px;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 2px 2px #2e2e2e;
+  z-index: 11;
+  pointer-events: none;
+}
