@@ -1,8 +1,3 @@
-## TODO Receive game state data
-## TODO Transmit Player Moves
-## TODO 
-## TODO 
-## TODO 
 import pubnub
 import torch
 import threading
@@ -26,44 +21,44 @@ def extract_features(frame: dict) -> torch.Tensor:
     ]])
 
 model = dqn_algo.Model()
+
+## Watch the human play and learn from their moves
 def environment(inbox, outbox):
     future = extract_features(inbox.get())
     while True:
         current = future
         future = extract_features(inbox.get())
-        print(future)
 
         ## Calculate Reward
-        crashed = future[0][5]
+        crashed = bool(future[0][5])
         if crashed: reward = -10.0
         else:       reward = 0.3
-        reward = torch.Tensor([[reward]])
 
-        ## Action
-        jump = current[0][6]
-        action = torch.IntTensor([[int(jump)]]) ## [jump]
-        #out = model(future)
-        loss = model.compute_loss(
+        ## Action the human took
+        jump = int(current[0][6])
+
+        loss = model.learn(
             current,
-            reward,
-            action, 
+            torch.Tensor([[reward]]),
+            torch.IntTensor([[jump]]), ## [jump]
             future,
+            torch.Tensor([[1.0 if crashed else 0.0]]),
         )
-        ##loss.backward()
-        print(loss)
+        print(f'human={jump} model={model.act(current, explore=0)} reward={reward:.1f} loss={loss:.4f}')
 
-## Subscription Inbox
 inbox = Queue()
-subscription = threading.Thread(target=pubnub.subscribe, args=(GAME_STATE_CHANNEL, inbox,))
-subscription.start()
-
-## Publish Game Movement Predictions
 outbox = Queue()
-simulation = threading.Thread(target=environment, args=(inbox, outbox,))
-simulation.start()
 
-## Join threads
-simulation.join()
-subscription.join()
+threads = [
+    threading.Thread(target=pubnub.subscribe, args=(GAME_STATE_CHANNEL, inbox,), daemon=True),
+    threading.Thread(target=environment, args=(inbox, outbox,), daemon=True),
+]
+
+for thread in threads: thread.start()
+
+try:
+    for thread in threads: thread.join()
+except KeyboardInterrupt:
+    print('\nstopping')
 
 
